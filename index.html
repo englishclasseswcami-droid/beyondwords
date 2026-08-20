@@ -562,7 +562,7 @@ const Topbar = ({onHistory,onSignOut}) => html`
    APP
    ============================================================================= */
 function App(){
-  const [screen,setScreen]=useState("home");
+  const [screen,setScreen]=useState(() => localStorage.getItem("bw_screen") || "home");
   const [user,setUser]=useState(null);
   const [authReady,setAuthReady]=useState(false);
   const [name,setName]=useState("");
@@ -570,9 +570,18 @@ function App(){
   const [practiceDates,setPracticeDates]=useState([]);
   const [total,setTotal]=useState(0);
   const [history,setHistory]=useState([]);
-  const [session,setSession]=useState(null);
+  const [session,setSession]=useState(() => {
+    const saved = localStorage.getItem("bw_session");
+    return saved ? JSON.parse(saved) : null;
+  });
   const [err,setErr]=useState("");
   const [loadingTopic,setLoadingTopic]=useState(false);
+
+  useEffect(() => { localStorage.setItem("bw_screen", screen); }, [screen]);
+  useEffect(() => { 
+    if(session) localStorage.setItem("bw_session", JSON.stringify(session)); 
+    else localStorage.removeItem("bw_session"); 
+  }, [session]);
 
   async function hydrate(u){
     if(!u){ setUser(null); setName(""); setPracticeDates([]); setTotal(0); setHistory([]); return; }
