@@ -599,6 +599,7 @@ function App(){
     // FIX: only reset the screen on real sign-in / sign-out, not on token refresh
     const {data:{subscription}}=sb.auth.onAuthStateChange(async(event,s)=>{
       if(!mounted) return;
+      if(event==="TOKEN_REFRESHED"||event==="INITIAL_SESSION") return;
       await hydrate(s?.user||null);
       setAuthReady(true);
       if(event==="SIGNED_IN"||event==="SIGNED_OUT") setScreen("home");
