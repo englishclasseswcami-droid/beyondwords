@@ -611,7 +611,7 @@ function App(){
       if(event==="TOKEN_REFRESHED"||event==="INITIAL_SESSION") return;
       await hydrate(s?.user||null);
       setAuthReady(true);
-      if(event==="SIGNED_IN"||event==="SIGNED_OUT") setScreen("home");
+      if(event==="SIGNED_OUT") setScreen("home");
     });
     return()=>{ mounted=false; subscription.unsubscribe(); };
   },[]);
