@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Beyond Words — Speaking Partner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stone:#F4F5F2; --stone-2:#ECEEE9; --surface:#FFFFFF;
+  --line:#E3E5DF; --line-2:#D3D6CD;
+  --ink:#1B1D1A; --ink-2:#5C5F57; --ink-3:#8A8D83;
+  --accent:#0F5D57; --accent-press:#0A4A45; --accent-tint:#E4F0EE; --accent-tint-2:#D3E7E4;
+  --good:#0F5D57; --warn:#9A6b1f; --danger:#9E3B2E;
+  --radius:16px; --radius-sm:11px;
+  --shadow:0 1px 2px rgba(27,29,26,.04), 0 6px 22px -12px rgba(27,29,26,.14);
+  --shadow-lg:0 2px 4px rgba(27,29,26,.05), 0 24px 60px -28px rgba(27,29,26,.28);
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--stone);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;min-height:100dvh;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+textarea,input{font-family:inherit}
+::selection{background:var(--accent-tint-2)}
+
+.app{max-width:660px;margin:0 auto;padding:26px 20px 96px;min-height:100dvh;position:relative}
+.screen{animation:rise .42s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{display:flex;align-items:flex-end;gap:2.5px;height:18px}
+.mark span{width:2.5px;background:var(--accent);border-radius:2px;display:block}
+.mark span:nth-child(1){height:7px}.mark span:nth-child(2){height:14px}
+.mark span:nth-child(3){height:18px}.mark span:nth-child(4){height:10px}.mark span:nth-child(5){height:5px}
+.brand b{font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+.brand small{color:var(--ink-3);font-size:12px;font-weight:500}
+.ghostlink{color:var(--ink-2);font-size:13px;font-weight:500;padding:7px 10px;border-radius:9px}
+.ghostlink:hover{background:var(--stone-2);color:var(--ink)}
+
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+
+.greeting{font-family:var(--serif);font-size:clamp(30px,7vw,42px);line-height:1.08;letter-spacing:-.02em;margin:14px 0 4px;font-weight:400}
+.greeting .name{font-style:italic}
+.editname{border-bottom:1px dashed var(--line-2);color:inherit;font:inherit;background:none;padding:0 1px}
+.subhead{color:var(--ink-2);font-size:16px;margin:0 0 30px}
+
+.choices{display:grid;gap:14px}
+.choice{display:flex;align-items:center;gap:18px;text-align:left;width:100%;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px;box-shadow:var(--shadow);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
+.choice:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--line-2)}
+.choice:active{transform:translateY(0)}
+.choice .ic{flex:0 0 46px;height:46px;border-radius:12px;background:var(--accent-tint);display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.choice h3{margin:0 0 3px;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.choice p{margin:0;color:var(--ink-2);font-size:13.5px}
+.choice .arr{margin-left:auto;color:var(--ink-3);transition:transform .18s ease}
+.choice:hover .arr{transform:translateX(3px);color:var(--accent)}
+
+.week{margin-top:32px;padding:20px 22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.week-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.week-top .eyebrow{margin:0}
+.week-stats{display:flex;gap:18px;color:var(--ink-2);font-size:12.5px}
+.week-stats b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.dots{display:flex;gap:10px;align-items:center}
+.dot{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line-2);position:relative}
+.dot.on{background:var(--accent);border-color:var(--accent)}
+.dot.today{box-shadow:0 0 0 3px var(--accent-tint)}
+.dot .d{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink-3);font-weight:500}
+.dotrow{padding-bottom:20px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2);font-size:13.5px;font-weight:500;margin-bottom:22px;padding:6px 10px 6px 6px;border-radius:9px}
+.back:hover{background:var(--stone-2);color:var(--ink)}
+
+.goalgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 20px}
+@media(max-width:520px){.goalgrid{grid-template-columns:1fr}}
+.goal{display:flex;align-items:center;gap:11px;padding:14px 15px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);text-align:left;font-size:14px;font-weight:500;transition:border-color .15s ease,background .15s ease}
+.goal:hover{border-color:var(--line-2);background:#fbfcfa}
+.goal.sel{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.goal .gk{flex:0 0 8px;height:8px;border-radius:50%;background:var(--line-2)}
+.goal.sel .gk{background:var(--accent)}
+.field{margin-top:6px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:var(--ink)}
+textarea.own{width:100%;min-height:82px;resize:vertical;border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 14px;font-size:14.5px;line-height:1.5;color:var(--ink);background:var(--surface)}
+textarea.own:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.timechips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.tchip{padding:8px 14px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:500;font-family:var(--mono);background:var(--surface)}
+.tchip.sel{border-color:var(--accent);background:var(--accent);color:#fff}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:14px 22px;border-radius:12px;width:100%;transition:background .16s ease,transform .12s ease;box-shadow:0 1px 2px rgba(15,93,87,.25)}
+.btn:hover{background:var(--accent-press)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{background:var(--line-2);color:#fff;box-shadow:none}
+.btn.sec{background:var(--surface);color:var(--ink);border:1px solid var(--line-2);box-shadow:none}
+.btn.sec:hover{background:var(--stone-2)}
+.btn.slim{width:auto;padding:11px 18px;font-size:14px}
+.btnrow{display:flex;gap:10px;margin-top:22px}
+.btnrow .btn{width:auto;flex:1}
+
+.promptcard{position:relative;padding:28px 26px}
+.promptcard .eyebrow{margin-bottom:14px}
+.topic{font-family:var(--serif);font-size:clamp(22px,4.6vw,28px);line-height:1.25;letter-spacing:-.01em;margin:0}
+.reroll{position:absolute;top:20px;right:20px;color:var(--ink-3);padding:8px;border-radius:9px}
+.reroll:hover{background:var(--stone-2);color:var(--accent)}
+.reroll.spin svg{animation:spin .6s linear}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.fw{margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.fw-head{display:flex;align-items:center;gap:12px;padding:16px 18px;width:100%;text-align:left}
+.fw-head:hover{background:#fbfcfa}
+.fw-tag{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--accent);background:var(--accent-tint);padding:4px 8px;border-radius:6px}
+.fw-head h4{margin:0;font-size:14px;font-weight:600}
+.fw-head p{margin:1px 0 0;font-size:12.5px;color:var(--ink-3)}
+.fw-head .chev{margin-left:auto;color:var(--ink-3);transition:transform .2s ease}
+.fw-head[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.fw-body{padding:0 18px 18px;border-top:1px solid var(--line)}
+.fw-steps{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 14px}
+.fw-step{font-size:12.5px;color:var(--ink-2)}
+.fw-step b{color:var(--ink);font-weight:600}
+.fw-step:not(:last-child)::after{content:"→";margin-left:6px;color:var(--line-2)}
+.fw-ex{font-family:var(--serif);font-size:15px;line-height:1.5;color:var(--ink-2);font-style:italic;border-left:2px solid var(--accent-tint-2);padding-left:14px;margin:0 0 12px}
+.fw-note{font-size:12px;color:var(--ink-3)}
+.fw-alt{font-size:12.5px;color:var(--ink-2);margin-top:12px;text-align:center}
+.fw-alt button{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.optional{display:inline-block;font-size:11px;color:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:middle;font-weight:500}
+
+.rec-wrap{text-align:center;padding:16px 0 4px}
+.rec-topic{font-family:var(--serif);font-size:19px;line-height:1.35;color:var(--ink);max-width:480px;margin:0 auto 4px}
+.rec-target{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-bottom:26px}
+.wave{height:88px;display:flex;align-items:center;justify-content:center;gap:3px;margin:0 auto 6px;max-width:360px}
+.wave i{width:3px;min-height:3px;background:var(--accent);border-radius:3px;opacity:.85;transition:height .08s linear}
+.wave.idle i{background:var(--line-2)}
+.timer{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:-.01em;margin:2px 0 4px}
+.timer.over{color:var(--danger)}
+.timer-sub{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-bottom:26px}
+.recbtn{width:76px;height:76px;border-radius:50%;background:var(--accent);margin:0 auto;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px -6px rgba(15,93,87,.6);transition:transform .15s ease}
+.recbtn:hover{transform:scale(1.04)}
+.recbtn:active{transform:scale(.97)}
+.recbtn.disabled{background:var(--line-2);box-shadow:none;cursor:not-allowed}
+.recbtn.disabled:hover{transform:none}
+.recbtn .glyph{width:26px;height:26px;border-radius:50%;background:#fff}
+.recbtn.live{background:var(--danger);box-shadow:0 6px 20px -6px rgba(158,59,46,.6);animation:pulse 1.6s ease-in-out infinite}
+.recbtn.live .glyph{border-radius:6px;width:24px;height:24px}
+@keyframes pulse{0%,100%{box-shadow:0 6px 20px -6px rgba(158,59,46,.55)}50%{box-shadow:0 6px 30px 2px rgba(158,59,46,.35)}}
+.rec-hint{color:var(--ink-3);font-size:12.5px;margin-top:16px}
+.inputsplit{display:flex;align-items:center;gap:14px;max-width:360px;margin:22px auto 0;color:var(--ink-3);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.inputsplit::before,.inputsplit::after{content:"";height:1px;flex:1;background:var(--line)}
+.uploadwrap{max-width:360px;margin:16px auto 0}
+.typelink{margin-top:14px}
+.typelink button{font-size:12.5px;color:var(--ink-2);font-weight:500;text-decoration:underline;text-underline-offset:2px}
+.typelink button:hover{color:var(--accent)}
+.hiddenfile{display:none}
+.capnote{max-width:400px;margin:14px auto 0;font-size:12px;color:var(--ink-3);line-height:1.5;background:#fbfcfa;border:1px dashed var(--line-2);border-radius:var(--radius-sm);padding:11px 13px;text-align:left;display:flex;gap:9px}
+.capnote svg{flex:0 0 15px;margin-top:2px}
+
+.tx-panel{margin-top:22px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:16px 18px}
+.tx-panel .eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.tx-src{font-family:var(--mono);font-size:10px;color:var(--ink-3);background:var(--stone-2);padding:2px 7px;border-radius:5px;text-transform:none;letter-spacing:0;font-weight:500}
+textarea.tx{width:100%;min-height:88px;resize:vertical;border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 13px;font-size:14px;line-height:1.55;color:var(--ink);background:#fbfcfa}
+textarea.tx:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.tx-help{font-size:11.5px;color:var(--ink-3);margin-top:9px;line-height:1.5}
+.tx-help code{font-family:var(--mono);font-size:11px;background:var(--stone-2);padding:1px 5px;border-radius:4px;color:var(--ink-2)}
+audio.player{width:100%;margin-top:10px;height:38px}
+
+.analyzing{text-align:center;padding:70px 0}
+.analyzing .wave{height:56px;margin-bottom:22px}
+.analyzing .wave i{animation:bob 1s ease-in-out infinite}
+@keyframes bob{0%,100%{height:8px}50%{height:34px}}
+.analyzing .wave i:nth-child(2){animation-delay:.1s}.analyzing .wave i:nth-child(3){animation-delay:.2s}
+.analyzing .wave i:nth-child(4){animation-delay:.3s}.analyzing .wave i:nth-child(5){animation-delay:.15s}
+.analyzing .wave i:nth-child(6){animation-delay:.25s}.analyzing .wave i:nth-child(7){animation-delay:.05s}
+.analyzing p{color:var(--ink-2);font-size:14.5px;font-family:var(--serif);font-style:italic}
+
+.fb-head{margin-bottom:6px}
+.fb-topic{color:var(--ink-2);font-size:13px;margin:3px 0 22px;line-height:1.4}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.metric{background:var(--surface);padding:16px 18px}
+.metric .k{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+.metric .v{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.metric .v small{font-size:13px;color:var(--ink-3);font-weight:500}
+.metric .sub{font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.4}
+.chiplab{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:999px;margin-top:4px}
+.chiplab::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.lab-clear{background:var(--accent-tint);color:var(--accent)}
+.lab-mostly{background:#F3EEDC;color:var(--warn)}
+.lab-effort{background:#F6E6E2;color:var(--danger)}
+.fillerlist{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
+
+.block{padding:20px 0;border-top:1px solid var(--line)}
+.block:first-of-type{border-top:none}
+.block .eyebrow{margin-bottom:12px}
+.worked{display:flex;flex-direction:column;gap:10px;margin:0;padding:0}
+.worked li{display:flex;gap:11px;font-size:14.5px;color:var(--ink);line-height:1.5;list-style:none}
+.worked li svg{flex:0 0 18px;margin-top:2px;color:var(--accent)}
+.pattern{font-size:15px;line-height:1.6;color:var(--ink);margin:0}
+.why{font-size:14px;line-height:1.6;color:var(--ink-2);margin:8px 0 0}
+.focuscard{background:var(--accent-tint);border:1px solid var(--accent-tint-2);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 20px;margin-top:4px}
+.focuscard .eyebrow{color:var(--accent);margin-bottom:8px}
+.focuscard p{margin:0;font-size:16px;line-height:1.5;color:var(--ink);font-weight:500}
+.tryagain{background:var(--stone-2);border-radius:var(--radius-sm);padding:16px 18px;margin-top:12px}
+.tryagain .eyebrow{margin-bottom:7px}
+.tryagain p{margin:0;font-size:14px;line-height:1.55;color:var(--ink-2)}
+.coachnote{display:flex;gap:9px;align-items:flex-start;margin-top:16px;font-size:12.5px;color:var(--ink-3);line-height:1.5;background:#fbfcfa;border:1px dashed var(--line-2);border-radius:var(--radius-sm);padding:12px 14px}
+.coachnote svg{flex:0 0 15px;margin-top:2px}
+
+.prog{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:8px}
+.progrow{background:var(--surface);display:flex;align-items:center;padding:15px 18px;gap:14px}
+.progrow .pk{font-size:13px;font-weight:600;color:var(--ink-2);flex:0 0 84px}
+.progrow .pv{font-family:var(--mono);font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
+.progrow .pv .from{color:var(--ink-3)}
+.progrow .pv .to{color:var(--ink)}
+.progrow .pv .arr{color:var(--line-2)}
+.progrow .tag{margin-left:auto;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px}
+.tag-up{background:var(--accent-tint);color:var(--accent)}
+.tag-flat{background:var(--stone-2);color:var(--ink-3)}
+.qualrow{background:var(--surface);padding:15px 18px}
+.qualrow .pk{font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.qualrow p{margin:0;font-size:14px;color:var(--ink);line-height:1.5}
+.verdict{font-family:var(--serif);font-size:20px;line-height:1.35;color:var(--ink);margin:0 0 20px;font-weight:400}
+.verdict em{color:var(--accent);font-style:italic}
+
+.histlist{display:flex;flex-direction:column;gap:10px}
+.histitem{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px 18px;box-shadow:var(--shadow)}
+.histitem .date{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:0 0 auto}
+.histitem .ht{font-size:13.5px;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histitem .hm{font-family:var(--mono);font-size:12px;color:var(--ink-2);flex:0 0 auto}
+.empty{text-align:center;padding:56px 20px;color:var(--ink-2)}
+.empty .wave{height:40px;margin-bottom:18px;opacity:.5}
+.empty h3{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 6px;color:var(--ink)}
+.empty p{margin:0;font-size:14px}
+
+.errbox{background:#F6E6E2;border:1px solid #E7CBC4;border-radius:var(--radius-sm);padding:14px 16px;font-size:13.5px;color:var(--danger);margin-top:14px;line-height:1.5}
+.errbox b{font-weight:600}
+.footnote{text-align:center;color:var(--ink-3);font-size:11px;margin-top:38px;line-height:1.5}
+h2.scr-title{font-family:var(--serif);font-weight:400;font-size:26px;letter-spacing:-.01em;margin:0 0 4px}
+.scr-sub{color:var(--ink-2);font-size:14px;margin:0 0 22px}
+.authwrap{max-width:460px;margin:9vh auto 0}
+.authcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:28px}
+.authcard h1{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.15;margin:14px 0 8px}
+.authcard p{color:var(--ink-2);font-size:14px;margin:0 0 22px}
+.authfield{margin-top:14px}
+.authfield label{display:block;font-size:12.5px;font-weight:600;margin-bottom:7px}
+.authfield input{width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 13px;font-size:14.5px;background:#fff;color:var(--ink)}
+.authfield input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.authswitch{font-size:12.5px;color:var(--ink-2);text-align:center;margin-top:15px}
+.authswitch button{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.authmsg{margin-top:14px;font-size:13px;color:var(--ink-2);background:#fbfcfa;border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 12px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>!function(n,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):n.htm=e()}(this,function(){var n=function(e,t,u,s){var r;t[0]=0;for(var p=1;p<t.length;p++){var h=t[p++],o=t[p]?(t[0]|=h?1:2,u[t[p++]]):t[++p];3===h?s[0]=o:4===h?s[1]=Object.assign(s[1]||{},o):5===h?(s[1]=s[1]||{})[t[++p]]=o:6===h?s[1][t[++p]]+=o+"":h?(r=e.apply(o,n(e,o,u,["",null])),s.push(r),o[0]?t[0]|=2:(t[p-2]=0,t[p]=r)):s.push(o)}return s},e=new Map;return function(t){var u=e.get(this);return u||(u=new Map,e.set(this,u)),(u=n(this,u.get(t)||(u.set(t,u=function(n){for(var e,t,u=1,s="",r="",p=[0],h=function(n){1===u&&(n||(s=s.replace(/^\s*\n\s*|\s*\n\s*$/g,"")))?p.push(0,n,s):3===u&&(n||s)?(p.push(3,n,s),u=2):2===u&&"..."===s&&n?p.push(4,n,0):2===u&&s&&!n?p.push(5,0,!0,s):u>=5&&((s||!n&&5===u)&&(p.push(u,0,s,t),u=6),n&&(p.push(u,n,0,t),u=6)),s=""},o=0;o<n.length;o++){o&&(1===u&&h(),h(o));for(var f=0;f<n[o].length;f++)e=n[o][f],1===u?"<"===e?(h(),p=[p],u=3):s+=e:4===u?"--"===s&&">"===e?(u=1,s=""):s=e+s[0]:r?e===r?r="":s+=e:'"'===e||"'"===e?r=e:">"===e?(h(),u=1):u&&("="===e?(u=5,t=s,s=""):"/"===e&&(u<5||">"===n[o][f+1])?(h(),3===u&&(p=p[0]),u=p,(p=p[0]).push(2,0,u),u=0):" "===e||"\t"===e||"\n"===e||"\r"===e?(h(),u=2):s+=e),3===u&&"!--"===s&&(u=4,p=p[0])}return h(),p}(t)),u),arguments,[])).length>1?u:u[0]}});</script>
+
+<script>
+const { useState, useRef, useEffect } = React;
+const html = htm.bind(React.createElement);
+
+/* =============================================================================
+   CONFIG
+   ============================================================================= */
+const AI_MODEL = "claude-sonnet-4-6";
+
+const SUPABASE_URL = "https://xuuvxiddtsepabmianbo.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Af0WKtv-SP5AnHSYUs6sFA_Buveifcn";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+/* =============================================================================
+   FRAMEWORKS
+   ============================================================================= */
+const FRAMEWORKS = {
+  PREP:{tag:"PREP",full:"Point · Reason · Example · Point",
+    steps:[["Point","state your main point"],["Reason","explain why"],["Example","give a specific example"],["Point","restate your point"]],
+    example:"Remote work can be more productive. I think this because people have fewer interruptions. For example, I can focus much better at home when I need to write reports. So overall, remote work helps me do deeper work.",
+    fit:"opinions & arguments"},
+  STAR:{tag:"STAR",full:"Situation · Task · Action · Result",
+    steps:[["Situation","set the scene"],["Task","your responsibility"],["Action","what you did"],["Result","the outcome"]],
+    example:"Last quarter our launch was slipping. I owned the timeline. I re-sequenced the work and cut two non-essentials. We shipped on the original date.",
+    fit:"past experience & behavioral questions"},
+  PDF:{tag:"PDF",full:"Past · Present · Future",
+    steps:[["Past","where you've been"],["Present","where you are now"],["Future","where you're headed"]],
+    example:"I started in operations handling logistics. Now I lead a small client team. Next, I want to move into strategy for the region.",
+    fit:"career journey & progression"},
+  WSN:{tag:"What / So What / Now What",full:"What · So What · Now What",
+    steps:[["What","what happened"],["So What","why it matters"],["Now What","what happens next"]],
+    example:"We lost two accounts this month. That signals our onboarding is too slow. So we're piloting a faster first-week flow starting Monday.",
+    fit:"reflection & project debriefs"},
+  PARA:{tag:"PARA",full:"Point · Action · Result · Ask",
+    steps:[["Point","the point"],["Action","the action"],["Result","the result"],["Ask","the ask"]],
+    example:"We should move the client to the premium tier. If we do, they get priority routing. That would cut their response time in half. Can I send the proposal today?",
+    fit:"proposals, requests & action"},
+};
+const FW_KEYS = Object.keys(FRAMEWORKS);
+function normFw(name){
+  if(!name) return null;
+  const n = String(name).toUpperCase().replace(/[^A-Z]/g,"");
+  if(n.startsWith("PREP")) return "PREP";
+  if(n.startsWith("STAR")) return "STAR";
+  if(n==="PDF"||n.startsWith("PASTPRESENT")) return "PDF";
+  if(n.startsWith("PARA")) return "PARA";
+  if(n.includes("WHAT")||n==="WSN") return "WSN";
+  return FW_KEYS.includes(n)?n:null;
+}
+const GOALS = [
+  ["Organize my ideas","clear, ordered thinking"],
+  ["Answer faster","less hesitation before you start"],
+  ["Stay concise","say it in fewer words"],
+  ["Reduce fillers & repetition","cleaner delivery"],
+  ["Speak for a set time","hit a target length"],
+  ["A professional scenario","meeting, interview, pitch"],
+];
+
+/* =============================================================================
+   LAYER 1 — AUDIO INPUT
+   ============================================================================= */
+const MicSupport = {
+  hasApi(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia); },
+};
+const MicRecorder = {
+  mediaRecorder:null, chunks:[], stream:null, ctx:null, analyser:null, startedAt:0, _raf:0,
+  async start(onLevel){
+    this.stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    this.chunks = [];
+    this.mediaRecorder = new MediaRecorder(this.stream);
+    this.mediaRecorder.ondataavailable = e => { if(e.data.size) this.chunks.push(e.data); };
+    this.mediaRecorder.start();
+    this.startedAt = performance.now();
+    try{
+      this.ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const src = this.ctx.createMediaStreamSource(this.stream);
+      this.analyser = this.ctx.createAnalyser(); this.analyser.fftSize = 256;
+      src.connect(this.analyser);
+      const data = new Uint8Array(this.analyser.frequencyBinCount);
+      const tick = () => { if(!this.analyser) return;
+        this.analyser.getByteFrequencyData(data);
+        let sum=0; for(let i=0;i<data.length;i++) sum+=data[i];
+        onLevel && onLevel(Math.min(1,(sum/data.length)/90));
+        this._raf = requestAnimationFrame(tick); };
+      tick();
+    }catch(e){}
+  },
+  async stop(){
+    const durationMs = performance.now() - this.startedAt;
+    const blob = await new Promise(res=>{
+      if(!this.mediaRecorder){ res(null); return; }
+      this.mediaRecorder.onstop = () => res(new Blob(this.chunks,{type:this.chunks[0]?.type||"audio/webm"}));
+      this.mediaRecorder.stop();
+    });
+    cancelAnimationFrame(this._raf);
+    if(this.ctx){ try{ this.ctx.close(); }catch(e){} this.ctx=null; this.analyser=null; }
+    if(this.stream){ this.stream.getTracks().forEach(t=>t.stop()); this.stream=null; }
+    return { audioBlob:blob, durationMs };
+  },
+};
+function readAudioFile(file){
+  return new Promise(res=>{
+    const url = URL.createObjectURL(file);
+    const a = document.createElement("audio"); a.preload = "metadata";
+    a.onloadedmetadata = () => {
+      const d = a.duration;
+      res({ audioBlob:file, durationMs:isFinite(d)&&d>0?Math.round(d*1000):null, url });
+    };
+    a.onerror = () => res({ audioBlob:file, durationMs:null, url });
+    a.src = url;
+  });
+}
+
+/* =============================================================================
+   LAYER 2 — TRANSCRIPTION  (now wired to Gemini via the Edge Function)
+   ============================================================================= */
+const LiveSpeech = {
+  rec:null, transcript:"",
+  supported: !!(window.SpeechRecognition||window.webkitSpeechRecognition),
+  start(onInterim){
+    if(!this.supported) return false;
+    const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+    this.rec = new SR(); this.rec.continuous=true; this.rec.interimResults=true; this.rec.lang="en-US";
+    this.transcript="";
+    this.rec.onresult = (e)=>{ let fin="",interim="";
+      for(let i=e.resultIndex;i<e.results.length;i++){ const t=e.results[i][0].transcript;
+        if(e.results[i].isFinal) fin+=t+" "; else interim+=t; }
+      if(fin) this.transcript+=fin; onInterim && onInterim((this.transcript+interim).trim()); };
+    this.rec.onerror=()=>{};
+    try{ this.rec.start(); return true; }catch(e){ return false; }
+  },
+  stop(){ if(this.rec){ try{ this.rec.stop(); }catch(e){} } return this.transcript.trim(); },
+};
+const BrowserSpeechProvider = {
+  id:"browser-speech", liveOnly:true,
+  async transcribe({ liveTranscript }){
+    return { transcript:(liveTranscript||"").trim(), source:"Browser speech (demo)" };
+  },
+};
+// read an audio Blob as base64 (for sending to the transcribe function)
+function blobToBase64(blob){
+  return new Promise((res,rej)=>{ const r=new FileReader();
+    r.onloadend=()=>res(String(r.result).split(",")[1]||""); r.onerror=rej; r.readAsDataURL(blob); });
+}
+// PRODUCTION PATH: real transcription via the speaking-partner-ai function (Gemini)
+const ApiTranscriptionProvider = {
+  id:"api", liveOnly:false,
+  async transcribe({ audioBlob }){
+    if(!audioBlob) return { transcript:"", source:"Type / paste" };
+    const audioBase64 = await blobToBase64(audioBlob);
+    const data = await invokeSpeakingPartnerAI("transcribe", { audioBase64, mimeType: audioBlob.type || "audio/webm" });
+    return { transcript:(data.transcript||"").trim(), source:"Gemini" };
+  },
+};
+const Transcription = {
+  provider: ApiTranscriptionProvider,   // Gemini via Edge Function (was BrowserSpeechProvider)
+  isApi(){ return this.provider === ApiTranscriptionProvider; },
+  async run({ inputSource, audioBlob, liveTranscript }){
+    if(this.provider !== BrowserSpeechProvider){
+      try{ const r = await this.provider.transcribe({ audioBlob, liveTranscript });
+        if((r.transcript||"").trim()) return { transcript:r.transcript.trim(), source:r.source||"API", auto:true }; }
+      catch(e){ /* fall through to manual / live */ }
+    }
+    if(inputSource==="mic" && (liveTranscript||"").trim()){
+      const r = await BrowserSpeechProvider.transcribe({ liveTranscript });
+      return { transcript:r.transcript, source:r.source, auto:true };
+    }
+    return { transcript:"", source:"Type / paste", auto:false };
+  },
+};
+
+/* =============================================================================
+   LAYER 3 — OBSERVABLE METRICS
+   ============================================================================= */
+const FILLERS = ["um","uh","erm","umm","uhh","uhm","hmm","er","like","you know","i mean","kind of","sort of","kinda","sorta","basically"];
+const Metrics = {
+  compute(transcript, durationMs, targetSec){
+    const clean = (transcript||"").toLowerCase();
+    const words = clean.replace(/[^\w'\s]/g," ").split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const timeSec = durationMs ? Math.max(0.1, durationMs/1000) : null;
+    const wpm = timeSec ? Math.round(wordCount/(timeSec/60)) : null;
+    let fillerCount=0; const found={};
+    let hay = " " + clean.replace(/[^\w'\s]/g," ").replace(/\s+/g," ") + " ";
+    FILLERS.forEach(f=>{ const re = new RegExp("\\s"+f.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s","g");
+      const m = hay.match(re); if(m){ fillerCount+=m.length; found[f]=m.length; hay=hay.replace(re," "); } });
+    const topFillers = Object.entries(found).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    let repetitions=0; for(let i=1;i<words.length;i++) if(words[i]===words[i-1] && words[i].length>1) repetitions++;
+    return { wordCount, timeSec:timeSec?Math.round(timeSec):null, wpm, fillerCount, topFillers, repetitions,
+      targetSec:targetSec||null, overBy: (targetSec&&timeSec)?Math.round(timeSec-targetSec):null };
+  },
+  mmss(s){ if(s==null||isNaN(s)) return "—"; const m=Math.floor(s/60), ss=Math.round(s%60); return m+":"+String(ss).padStart(2,"0"); },
+};
+
+/* =============================================================================
+   LAYER 4 — QUALITATIVE AI ANALYSIS via Supabase Edge Function (Gemini)
+   ============================================================================= */
+async function invokeSpeakingPartnerAI(action, payload){
+  const { data, error } = await sb.functions.invoke("speaking-partner-ai", {
+    body: { action, ...payload },
+  });
+  if(error) throw new Error(error.message || "ai_function_error");
+  if(data?.error) throw new Error(data.error);
+  if(!data?.data) throw new Error("ai_empty_response");
+  return data.data;
+}
+const AI = {
+  async getTopic({ mode, goal, customTopic, targetSec }){
+    return await invokeSpeakingPartnerAI("topic", { mode, goal, customTopic, targetSec });
+  },
+  async analyzeFirst({ topic, goal, frameworkUsed, transcript, metrics, targetSec }){
+    return await invokeSpeakingPartnerAI("analyze_first", { topic, goal, frameworkUsed, transcript, metrics, targetSec });
+  },
+  async analyzeRetry({ topic, goal, focus, prevMetrics, metrics, transcript }){
+    return await invokeSpeakingPartnerAI("analyze_retry", { topic, goal, focus, prevMetrics, metrics, transcript });
+  },
+};
+
+/* =============================================================================
+   SUPABASE DATA LAYER
+   ============================================================================= */
+const Data = {
+  async currentUser(){ const {data:{user}} = await sb.auth.getUser(); return user||null; },
+  async loadProfile(userId){
+    const {data,error}=await sb.from("profiles").select("name,email").eq("id",userId).maybeSingle();
+    if(error) throw error; return data||null;
+  },
+  async saveName(userId,name){
+    const {error}=await sb.from("profiles").update({name,updated_at:new Date().toISOString()}).eq("id",userId);
+    if(error) throw error;
+  },
+  async loadPractices(userId){
+    const {data,error}=await sb.from("practices")
+      .select("id,created_at,topic,filler_count,wpm,audio_duration_seconds,attempt_number")
+      .eq("user_id",userId).order("created_at",{ascending:false}).limit(80);
+    if(error) throw error; return data||[];
+  },
+  async insertPractice(row){
+    const {error}=await sb.from("practices").insert(row); if(error) throw error;
+  }
+};
+
+/* =============================================================================
+   STREAK / WEEK
+   ============================================================================= */
+const dayKey = d => { const x=new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); };
+function weekInfo(dates){
+  const set=new Set(dates); const now=new Date(); now.setHours(0,0,0,0);
+  const dow=(now.getDay()+6)%7; const monday=new Date(now); monday.setDate(now.getDate()-dow);
+  const week=[];
+  for(let i=0;i<7;i++){ const d=new Date(monday); d.setDate(monday.getDate()+i);
+    week.push({ label:["M","T","W","T","F","S","S"][i], on:set.has(dayKey(d)), today:dayKey(d)===dayKey(now) }); }
+  const daysThisWeek=week.filter(w=>w.on).length;
+  let streak=0; const cur=new Date(now);
+  if(!set.has(dayKey(cur))) cur.setDate(cur.getDate()-1);
+  while(set.has(dayKey(cur))){ streak++; cur.setDate(cur.getDate()-1); }
+  return { week, daysThisWeek, streak };
+}
+
+/* =============================================================================
+   SMALL UI
+   ============================================================================= */
+const Mark = () => html`<span className="mark" aria-hidden="true"><span/><span/><span/><span/><span/></span>`;
+const IcBack = () => html`<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>`;
+const IcInfo = () => html`<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>`;
+const IcCheck = () => html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>`;
+
+function ClarityLabel({label}){
+  const cls = label==="Clear"?"lab-clear":label==="Mostly clear"?"lab-mostly":"lab-effort";
+  return html`<span className=${"chiplab "+cls}>${label||"—"}</span>`;
+}
+function Waveform({level, idle}){
+  const BARS=27;
+  const [bars,setBars]=useState(()=>Array(BARS).fill(4));
+  const store=useRef(Array(BARS).fill(4));
+  useEffect(()=>{
+    if(idle){ setBars(Array(BARS).fill(4)); return; }
+    store.current=store.current.slice(1).concat([4+level*72+Math.random()*10*level]);
+    setBars([...store.current]);
+  },[level,idle]);
+  return html`<div className=${"wave"+(idle?" idle":"")} aria-hidden="true">
+    ${bars.map((h,i)=>html`<i key=${i} style=${{height:Math.max(3,Math.min(84,h))+"px"}}/>`)}
+  </div>`;
+}
+const Topbar = ({onHistory,onSignOut}) => html`
+  <div className="topbar">
+    <div className="brand"><${Mark}/><div><b>Beyond Words</b> <small>Speaking Partner</small></div></div>
+    <div style=${{display:"flex",gap:4,alignItems:"center"}}>
+      ${onHistory ? html`<button className="ghostlink" onClick=${onHistory}>Your practice</button>` : null}
+      ${onSignOut ? html`<button className="ghostlink" onClick=${onSignOut}>Sign out</button>` : null}
+    </div>
+  </div>`;
+
+/* =============================================================================
+   APP
+   ============================================================================= */
+function App(){
+  const [screen,setScreen]=useState("home");
+  const [user,setUser]=useState(null);
+  const [authReady,setAuthReady]=useState(false);
+  const [name,setName]=useState("");
+  const [editing,setEditing]=useState(false);
+  const [practiceDates,setPracticeDates]=useState([]);
+  const [total,setTotal]=useState(0);
+  const [history,setHistory]=useState([]);
+  const [session,setSession]=useState(null);
+  const [err,setErr]=useState("");
+  const [loadingTopic,setLoadingTopic]=useState(false);
+
+  async function hydrate(u){
+    if(!u){ setUser(null); setName(""); setPracticeDates([]); setTotal(0); setHistory([]); return; }
+    setUser(u);
+    const [profile,rows]=await Promise.all([Data.loadProfile(u.id),Data.loadPractices(u.id)]);
+    setName(profile?.name||"");
+    const uniqueDates=[...new Set(rows.map(r=>dayKey(r.created_at)))];
+    setPracticeDates(uniqueDates);
+    const sessions=rows.filter(r=>r.attempt_number===1);
+    setTotal(sessions.length);
+    setHistory(sessions.slice(0,40).map(r=>({
+      date:r.created_at, topic:r.topic||"Practice", fillers:r.filler_count??0,
+      wpm:r.wpm, time:r.audio_duration_seconds, attempts:1
+    })));
+  }
+
+  useEffect(()=>{
+    let mounted=true;
+    (async()=>{
+      try{ const {data:{session}}=await sb.auth.getSession(); if(mounted) await hydrate(session?.user||null); }
+      catch(e){ if(mounted) setErr("Couldn't connect to your practice account."); }
+      finally{ if(mounted) setAuthReady(true); }
+    })();
+    // FIX: only reset the screen on real sign-in / sign-out, not on token refresh
+    const {data:{subscription}}=sb.auth.onAuthStateChange(async(event,s)=>{
+      if(!mounted) return;
+      await hydrate(s?.user||null);
+      setAuthReady(true);
+      if(event==="SIGNED_IN"||event==="SIGNED_OUT") setScreen("home");
+    });
+    return()=>{ mounted=false; subscription.unsubscribe(); };
+  },[]);
+
+  const { week, daysThisWeek, streak } = weekInfo(practiceDates);
+  const saveName = async(v)=>{ setName(v); if(user) await Data.saveName(user.id,v); };
+  const signOut = async()=>{ await sb.auth.signOut(); setScreen("home"); };
+
+  async function recordPracticedToday(entry){
+    if(!user) return;
+    const dk=dayKey(new Date());
+    const dates=practiceDates.includes(dk)?practiceDates:[...practiceDates,dk];
+    setPracticeDates(dates);
+    const t=total+1; setTotal(t);
+    const h=[entry,...history].slice(0,40); setHistory(h);
+  }
+
+  async function startTopic({mode,goal,customTopic,targetSec}){
+    setErr(""); setLoadingTopic(true);
+    setSession({ mode,goal,targetSec:targetSec||null, topic:"", framework:null, alt:null });
+    setScreen("prep");
+    try{
+      const r=await AI.getTopic({mode,goal,customTopic,targetSec});
+      const fw=normFw(r.framework), alt=normFw(r.altFramework);
+      setSession(s=>({ ...s, topic:r.topic||customTopic||"Speak on a topic of your choice.", framework:fw, alt:alt&&alt!==fw?alt:null }));
+    }catch(e){
+      setSession(s=>({ ...s, topic:customTopic||"Describe a recent challenge at work and how you handled it.", framework:mode==="random"?"PREP":"STAR", alt:null }));
+      setErr("Couldn't reach the topic generator — here's one to practice with.");
+    }finally{ setLoadingTopic(false); }
+  }
+  async function reroll(){
+    if(!session) return; setLoadingTopic(true); setErr("");
+    try{ const r=await AI.getTopic({mode:session.mode,goal:session.goal,targetSec:session.targetSec});
+      const fw=normFw(r.framework), alt=normFw(r.altFramework);
+      setSession(s=>({ ...s, topic:r.topic, framework:fw, alt:alt&&alt!==fw?alt:null })); }
+    catch(e){ setErr("Couldn't fetch a new topic just now."); }
+    finally{ setLoadingTopic(false); }
+  }
+
+  async function analyzeAttempt({ transcript, durationMs, isRetry }){
+    setErr(""); setScreen("analyzing");
+    const targetSec=session.targetSec;
+    const metrics=Metrics.compute(transcript, durationMs, targetSec);
+    try{
+      if(!isRetry){
+        const fb=await AI.analyzeFirst({ topic:session.topic, goal:session.goal,
+          frameworkUsed:session.usedFramework?FRAMEWORKS[session.framework]?.tag:null, transcript, metrics, targetSec });
+        setSession(s=>({ ...s, a1:{ transcript, metrics }, feedback:fb })); setScreen("feedback");
+      } else {
+        const cmp=await AI.analyzeRetry({ topic:session.topic, goal:session.goal, focus:session.feedback.yourFocus,
+          prevMetrics:session.a1.metrics, metrics, transcript });
+        setSession(s=>({ ...s, a2:{ transcript, metrics }, compare:cmp })); setScreen("retry");
+      }
+    }catch(e){ setErr("The analysis didn't come through. Check your connection and try again.");
+      setScreen(isRetry?"feedback":"prep"); }
+  }
+  async function finishAndSave(){
+    if(!user || !session?.a1) return;
+    setErr("");
+    try{
+      const a1=session.a1.metrics, fb=session.feedback||{};
+      await Data.insertPractice({
+        user_id:user.id, mode:session.mode||"practice", goal:session.goal||null, topic:session.topic||null,
+        target_seconds:session.targetSec||null, audio_duration_seconds:a1.timeSec, transcript:session.a1.transcript,
+        filler_count:a1.fillerCount, repetition_count:a1.repetitions, wpm:a1.wpm,
+        structure_feedback:fb.structure||null, clarity_label:fb.clarityLabel||null, clarity_feedback:fb.clarity||null,
+        focus:fb.yourFocus||null, retry_instruction:fb.tryAgain||null, attempt_number:1
+      });
+      if(session.a2){
+        const a2=session.a2.metrics, cmp=session.compare||{};
+        await Data.insertPractice({
+          user_id:user.id, mode:session.mode||"practice", goal:session.goal||null, topic:session.topic||null,
+          target_seconds:session.targetSec||null, audio_duration_seconds:a2.timeSec, transcript:session.a2.transcript,
+          filler_count:a2.fillerCount, repetition_count:a2.repetitions, wpm:a2.wpm,
+          structure_feedback:cmp.structure||null, clarity_label:cmp.clarityLabel||null, clarity_feedback:cmp.clarity||null,
+          focus:fb.yourFocus||null, attempt_number:2
+        });
+      }
+      const m=session.a2?.metrics||session.a1.metrics;
+      await recordPracticedToday({ date:Date.now(), topic:session.topic, fillers:m.fillerCount, wpm:m.wpm, time:m.timeSec, attempts:session.a2?2:1 });
+      setSession(null); setScreen("home");
+    }catch(e){ setErr("Couldn't save this practice to your account. Please try again."); }
+  }
+
+  if(!authReady) return html`<div className="app"><${Topbar}/><div className="analyzing"><p>Opening your practice space…</p></div></div>`;
+  if(!user) return html`<${AuthScreen}/>`;
+
+  if(screen==="home") return html`
+    <div className="app screen">
+      <${Topbar} onHistory=${()=>setScreen("history")} onSignOut=${signOut}/>
+      <div className="eyebrow">Today's practice</div>
+      <h1 className="greeting">Hi, ${
+        editing
+          ? html`<input className="editname" autoFocus defaultValue=${name}
+              onBlur=${e=>{saveName(e.target.value.trim());setEditing(false);}}
+              onKeyDown=${e=>{ if(e.key==="Enter"){ saveName(e.target.value.trim()); setEditing(false); } }}
+              size=${Math.max(4,(name||"there").length)} />`
+          : html`<span className="name" onClick=${()=>setEditing(true)} title="Click to set your name" style=${{cursor:"text"}}>${name||"there"}</span>`
+      }.</h1>
+      <p className="subhead">What do you want to practice today?</p>
+      <div className="choices">
+        <button className="choice" onClick=${()=>startTopic({mode:"random"})}>
+          <span className="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+          <span><h3>Random topic</h3><p>An unexpected prompt or professional scenario</p></span>
+          <span className="arr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+        </button>
+        <button className="choice" onClick=${()=>setScreen("choose")}>
+          <span className="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg></span>
+          <span><h3>Choose your practice</h3><p>Pick a goal, or bring your own topic</p></span>
+          <span className="arr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+        </button>
+      </div>
+      <div className="week">
+        <div className="week-top"><div className="eyebrow">This week</div>
+          <div className="week-stats"><span>Streak <b>${streak}</b></span><span>Total <b>${total}</b></span></div></div>
+        <div className="dots dotrow">
+          ${week.map((d,i)=>html`<div key=${i} className=${"dot"+(d.on?" on":"")+(d.today?" today":"")}><span className="d">${d.label}</span></div>`)}
+          <span style=${{marginLeft:"auto",fontFamily:"var(--mono)",fontSize:13,color:"var(--ink-2)",fontWeight:600}}>${daysThisWeek}/7</span>
+        </div>
+      </div>
+      <div className="footnote">A companion between coaching sessions — not a replacement for your coach.</div>
+    </div>`;
+
+  if(screen==="choose") return html`<${ChooseScreen} onBack=${()=>setScreen("home")} onStart=${startTopic}/>`;
+
+  if(screen==="prep" && session) return html`
+    <div className="app screen">
+      <${Topbar}/>
+      <button className="back" onClick=${()=>setScreen(session.mode==="random"?"home":"choose")}><${IcBack}/> Back</button>
+      <div className="card promptcard">
+        <button className=${"reroll"+(loadingTopic?" spin":"")} onClick=${reroll} disabled=${loadingTopic} title="New topic" aria-label="New topic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0114.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0020.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        <div className="eyebrow">${session.goal?session.goal:"Your prompt"}</div>
+        <p className="topic">${loadingTopic && !session.topic ? "Finding a good prompt…" : session.topic}</p>
+      </div>
+      ${session.framework && FRAMEWORKS[session.framework]
+        ? html`<${FrameworkCard} fw=${session.framework} alt=${session.alt}
+            onUseAlt=${()=>setSession(s=>({...s,framework:s.alt,alt:s.framework}))}/>` : null}
+      ${err ? html`<div className="errbox">${err}</div>` : null}
+      <button className="btn" style=${{marginTop:22}} disabled=${loadingTopic||!session.topic} onClick=${()=>setScreen("record")}>Start</button>
+      <div className="footnote">The framework is optional. It's here if it helps — you're never marked down for skipping it.</div>
+    </div>`;
+
+  if(screen==="record" && session) return html`
+    <${RecordScreen} session=${session} isRetry=${false}
+      onBack=${()=>setScreen("prep")}
+      onDone=${(t,d)=>analyzeAttempt({transcript:t,durationMs:d,isRetry:false})}/>`;
+
+  if(screen==="record-2" && session) return html`
+    <${RecordScreen} session=${session} isRetry=${true}
+      retryFocus=${session.feedback.yourFocus} retryInstruction=${session.feedback.tryAgain}
+      onBack=${()=>setScreen("feedback")}
+      onDone=${(t,d)=>analyzeAttempt({transcript:t,durationMs:d,isRetry:true})}/>`;
+
+  if(screen==="analyzing") return html`
+    <div className="app screen"><${Topbar}/>
+      <div className="analyzing"><div className="wave"><i/><i/><i/><i/><i/><i/><i/></div>
+      <p>Listening to how you said it…</p></div></div>`;
+
+  if(screen==="feedback" && session?.feedback) return html`
+    <${FeedbackScreen} session=${session} err=${err}
+      onRetry=${()=>setScreen("record-2")} onSave=${finishAndSave}/>`;
+
+  if(screen==="retry" && session?.compare) return html`<${RetryScreen} session=${session} onSave=${finishAndSave}/>`;
+
+  if(screen==="history") return html`
+    <div className="app screen"><${Topbar}/>
+      <button className="back" onClick=${()=>setScreen("home")}><${IcBack}/> Home</button>
+      <h2 className="scr-title">Your practice</h2>
+      <p className="scr-sub">${total} ${total===1?"session":"sessions"} · ${streak}-day streak</p>
+      ${history.length===0
+        ? html`<div className="empty">
+            <div className="wave idle"><i style=${{height:8}}/><i style=${{height:20}}/><i style=${{height:34}}/><i style=${{height:16}}/><i style=${{height:8}}/></div>
+            <h3>Nothing here yet</h3><p>Your saved sessions will show up here. Start one from home.</p></div>`
+        : html`<div className="histlist">
+            ${history.map((h,i)=>html`<div className="histitem" key=${i}>
+              <span className="date">${new Date(h.date).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span>
+              <span className="ht">${h.topic}</span>
+              <span className="hm">${h.fillers}f · ${h.wpm??"—"}wpm · ${Metrics.mmss(h.time)}</span></div>`)}
+          </div>`}
+    </div>`;
+
+  return html`<div className="app"><${Topbar}/></div>`;
+}
+
+/* ---- AUTH SCREEN ---- */
+function AuthScreen(){
+  const [mode,setMode]=useState("signin");
+  const [name,setName]=useState("");
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
+  const [busy,setBusy]=useState(false);
+  const [msg,setMsg]=useState("");
+  const [error,setError]=useState("");
+  async function submit(e){
+    e.preventDefault(); setBusy(true); setMsg(""); setError("");
+    try{
+      if(mode==="signup"){
+        const {data,error}=await sb.auth.signUp({email,password,options:{data:{name:name.trim()}}});
+        if(error) throw error;
+        if(!data.session) setMsg("Check your email to confirm your account, then come back and sign in.");
+      }else{
+        const {error}=await sb.auth.signInWithPassword({email,password}); if(error) throw error;
+      }
+    }catch(e){ setError(e.message||"Something went wrong."); }
+    finally{ setBusy(false); }
+  }
+  return html`<div className="app screen"><div className="authwrap">
+    <div className="brand"><${Mark}/><div><b>Beyond Words</b> <small>Speaking Partner</small></div></div>
+    <form className="authcard" onSubmit=${submit}>
+      <div className="eyebrow">Your practice space</div>
+      <h1>${mode==="signin"?"Welcome back":"Create your account"}</h1>
+      <p>${mode==="signin"?"Sign in to continue your speaking practice.":"Your streak and practice history will stay connected to this account."}</p>
+      ${mode==="signup"?html`<div className="authfield"><label>Name</label><input required value=${name} onChange=${e=>setName(e.target.value)} autocomplete="name"/></div>`:null}
+      <div className="authfield"><label>Email</label><input required type="email" value=${email} onChange=${e=>setEmail(e.target.value)} autocomplete="email"/></div>
+      <div className="authfield"><label>Password</label><input required type="password" minlength="6" value=${password} onChange=${e=>setPassword(e.target.value)} autocomplete=${mode==="signin"?"current-password":"new-password"}/></div>
+      ${error?html`<div className="errbox">${error}</div>`:null}
+      ${msg?html`<div className="authmsg">${msg}</div>`:null}
+      <button className="btn" style=${{marginTop:20}} disabled=${busy}>${busy?"Please wait…":mode==="signin"?"Sign in":"Create account"}</button>
+      <div className="authswitch">${mode==="signin"?"New here? ":"Already have an account? "}<button type="button" onClick=${()=>{setMode(mode==="signin"?"signup":"signin");setError("");setMsg("");}}>${mode==="signin"?"Create account":"Sign in"}</button></div>
+    </form>
+  </div></div>`;
+}
+
+/* ---- CHOOSE SCREEN ---- */
+function ChooseScreen({onBack,onStart}){
+  const [goal,setGoal]=useState(null);
+  const [own,setOwn]=useState("");
+  const [tsec,setTsec]=useState(60);
+  const timed = goal==="Speak for a set time";
+  const canGo = goal || own.trim();
+  return html`
+    <div className="app screen">
+      <${Topbar}/>
+      <button className="back" onClick=${onBack}><${IcBack}/> Back</button>
+      <h2 className="scr-title">Choose your practice</h2>
+      <p className="scr-sub">Pick what you want to work on today.</p>
+      <div className="goalgrid">
+        ${GOALS.map(([g])=>html`<button key=${g} className=${"goal"+(goal===g?" sel":"")} onClick=${()=>setGoal(g)}>
+          <span className="gk"/><span><div>${g}</div></span></button>`)}
+      </div>
+      ${timed ? html`<div className="field" style=${{marginBottom:20}}>
+        <label>How long do you want to speak?</label>
+        <div className="timechips">
+          ${[30,45,60,90].map(s=>html`<button key=${s} className=${"tchip"+(tsec===s?" sel":"")} onClick=${()=>setTsec(s)}>${s}s</button>`)}
+        </div></div>` : null}
+      <div className="field">
+        <label>Or bring your own topic <span className="optional">optional</span></label>
+        <textarea className="own" placeholder="e.g. Explain my current project to a new stakeholder"
+          value=${own} onChange=${e=>setOwn(e.target.value)}/>
+      </div>
+      <button className="btn" style=${{marginTop:20}} disabled=${!canGo}
+        onClick=${()=>onStart({mode:"choose",goal:own.trim()?null:goal,customTopic:own,targetSec:timed?tsec:null})}>Continue</button>
+    </div>`;
+}
+
+/* ---- FRAMEWORK CARD ---- */
+function FrameworkCard({fw,alt,onUseAlt}){
+  const [open,setOpen]=useState(false);
+  const f=FRAMEWORKS[fw];
+  return html`
+    <div className="fw">
+      <button className="fw-head" aria-expanded=${open} onClick=${()=>setOpen(o=>!o)}>
+        <span className="fw-tag">${f.tag}</span>
+        <div><h4>Suggested framework <span className="optional">optional</span></h4><p>Good for ${f.fit}</p></div>
+        <svg className="chev" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </button>
+      ${open ? html`<div className="fw-body">
+        <div className="fw-steps">${f.steps.map(([a,b],i)=>html`<span className="fw-step" key=${i}><b>${a}</b> — ${b}</span>`)}</div>
+        <p className="fw-ex">"${f.example}"</p>
+        <div className="fw-note">Use it only if it helps you organize what you want to say.</div>
+        ${alt && FRAMEWORKS[alt] ? html`<div className="fw-alt">Prefer a different shape? <button onClick=${onUseAlt}>Try ${FRAMEWORKS[alt].tag} instead</button></div>` : null}
+      </div>` : null}
+    </div>`;
+}
+
+/* ---- RECORD SCREEN ---- */
+function RecordScreen({session,onBack,onDone,isRetry,retryFocus,retryInstruction}){
+  const [state,setState]=useState("ready");
+  const [inputSource,setInputSource]=useState("");
+  const [level,setLevel]=useState(0);
+  const [elapsed,setElapsed]=useState(0);
+  const [live,setLive]=useState("");
+  const [durationMs,setDurationMs]=useState(null);
+  const [source,setSource]=useState("");
+  const [autoFilled,setAutoFilled]=useState(false);
+  const [audioUrl,setAudioUrl]=useState("");
+  const [micBlocked,setMicBlocked]=useState(!MicSupport.hasApi());
+  const [micReason,setMicReason]=useState(MicSupport.hasApi()?"":"This environment doesn't expose microphone access.");
+  const [note,setNote]=useState("");
+  const [working,setWorking]=useState(false);
+  const timerRef=useRef(null);
+  const fileRef=useRef(null);
+  const target=session.targetSec;
+
+  useEffect(()=>()=>{ clearInterval(timerRef.current); },[]);
+
+  async function beginMic(){
+    setNote(""); setLive(""); setElapsed(0); setAudioUrl("");
+    try{
+      await MicRecorder.start(lvl=>setLevel(lvl));
+      LiveSpeech.start(txt=>setLive(txt));
+      setInputSource("mic"); setState("live");
+      const t0=performance.now();
+      timerRef.current=setInterval(()=>setElapsed((performance.now()-t0)/1000),100);
+    }catch(e){
+      const map={ NotAllowedError:"Microphone permission is blocked in this environment.",
+        SecurityError:"The runtime blocked microphone access (permissions policy).",
+        NotFoundError:"No microphone was found.", NotReadableError:"The microphone is in use by something else." };
+      setMicBlocked(true);
+      setMicReason(map[e && e.name] || "Microphone capture isn't available here.");
+    }
+  }
+  async function endMic(){
+    clearInterval(timerRef.current);
+    setWorking(true);
+    // FIX: capture the recorded audio and send it for real transcription
+    const { audioBlob:micBlob, durationMs:dur }=await MicRecorder.stop();
+    const liveTxt=LiveSpeech.stop();
+    const r=await Transcription.run({ inputSource:"mic", audioBlob:micBlob, liveTranscript:liveTxt });
+    setDurationMs(dur); setLive(r.transcript); setSource(r.source); setAutoFilled(r.auto); setLevel(0);
+    setWorking(false); setState("review");
+  }
+  async function onFile(e){
+    const file=e.target.files && e.target.files[0];
+    if(!file) return;
+    setNote(""); setWorking(true); setState("review");
+    const { audioBlob, durationMs:dur, url }=await readAudioFile(file);
+    setInputSource("upload"); setAudioUrl(url); setDurationMs(dur);
+    const r=await Transcription.run({ inputSource:"upload", audioBlob, liveTranscript:"" });
+    setLive(r.transcript); setSource(r.source); setAutoFilled(r.auto); setWorking(false);
+  }
+  function typeInstead(){
+    setInputSource("typed"); setDurationMs(null); setAudioUrl("");
+    setLive(""); setSource("Type / paste"); setAutoFilled(false); setState("review");
+  }
+  function analyze(){
+    if(!live.trim()){ setNote("Add a few words of what you said so we can analyze it."); return; }
+    onDone(live.trim(), durationMs);
+  }
+
+  const over = target && elapsed>target;
+
+  return html`
+    <div className="app screen">
+      <${Topbar}/>
+      <button className="back" onClick=${onBack}><${IcBack}/> Back</button>
+
+      ${isRetry ? html`<div className="focuscard" style=${{marginBottom:20}}>
+        <div className="eyebrow">Attempt 2 · your focus</div><p>${retryFocus}</p>
+        ${retryInstruction ? html`<div style=${{marginTop:10,fontSize:13.5,color:"var(--ink-2)",lineHeight:1.5}}>${retryInstruction}</div>` : null}
+      </div>` : null}
+
+      <div className="rec-wrap">
+        <p className="rec-topic">${session.topic}</p>
+        ${target ? html`<div className="rec-target">target · ${target}s</div>` : null}
+
+        ${state!=="review" ? html`<${Waveform} level=${level} idle=${state!=="live"}/>` : null}
+
+        ${state==="live" ? html`
+          <div className=${"timer"+(over?" over":"")}>${Metrics.mmss(elapsed)}</div>
+          <div className="timer-sub">${target?`/ ${Metrics.mmss(target)}`:"recording"}</div>
+          <button className="recbtn live" onClick=${endMic} aria-label="Stop recording"><span className="glyph"/></button>
+          <div className="rec-hint">Tap to stop when you're done</div>
+        ` : state==="ready" ? html`
+          <div className="timer" style=${{color:"var(--ink-3)"}}>${target?Metrics.mmss(target):"0:00"}</div>
+          <div className="timer-sub">${target?"aim for this":"take your time"}</div>
+
+          <button className=${"recbtn"+(micBlocked?" disabled":"")} onClick=${micBlocked?undefined:beginMic}
+            disabled=${micBlocked} aria-label="Record with microphone">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V6a3 3 0 00-6 0v6a3 3 0 003 3z" fill="#fff"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
+          </button>
+          <div className="rec-hint">${micBlocked ? "Microphone unavailable here" : "Tap to record"}</div>
+
+          ${micBlocked ? html`<div className="capnote"><${IcInfo}/><span>${micReason} You can <b>upload an audio clip</b> instead — that's a fully supported way to practice here.</span></div>` : null}
+
+          <div className="inputsplit">or</div>
+          <div className="uploadwrap">
+            <button className="btn sec" onClick=${()=>fileRef.current && fileRef.current.click()}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Upload audio file
+            </button>
+            <input ref=${fileRef} className="hiddenfile" type="file"
+              accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.webm,.flac" onChange=${onFile}/>
+          </div>
+          <div className="typelink"><button onClick=${typeInstead}>or type what you said</button></div>
+        ` : null}
+      </div>
+
+      ${note ? html`<div className="errbox">${note}</div>` : null}
+
+      ${state==="review" ? html`
+        <div className="tx-panel">
+          <div className="eyebrow">What you said ${source ? html`<span className="tx-src">${source}</span>` : null}</div>
+          ${audioUrl ? html`<audio className="player" controls src=${audioUrl}></audio>` : null}
+          <textarea className="tx" value=${live} onChange=${e=>setLive(e.target.value)}
+            placeholder=${working ? "Transcribing your audio…" : autoFilled ? "Tidy anything the transcription misheard before analyzing." : "Type or paste what you said."}/>
+          <div className="tx-help">
+            <span style=${{fontFamily:"var(--mono)",color:"var(--ink-3)"}}>${durationMs?Metrics.mmss(durationMs/1000)+" of audio":"duration not read"}</span>
+            ${working ? html` · transcribing with Gemini…` : null}
+          </div>
+        </div>
+        <div className="btnrow">
+          <button className="btn sec" onClick=${()=>{ setState("ready"); setLive(""); setAudioUrl(""); setInputSource(""); setNote(""); }}>Start over</button>
+          <button className="btn" onClick=${analyze} disabled=${working}>${working?"Please wait…":"Analyze this"}</button>
+        </div>
+      ` : null}
+
+      ${state==="ready" && !isRetry && session.framework && FRAMEWORKS[session.framework]
+        ? html`<div className="footnote">Suggested shape if you want it: <b>${FRAMEWORKS[session.framework].full}</b></div>` : null}
+    </div>`;
+}
+
+/* ---- FEEDBACK SCREEN ---- */
+function FeedbackScreen({session,onRetry,onSave,err}){
+  const m=session.a1.metrics, fb=session.feedback;
+  const overNote = (m.targetSec && m.timeSec!=null)
+    ? (m.overBy>4?`${Math.abs(m.overBy)}s over`:m.overBy<-4?`${Math.abs(m.overBy)}s under`:"on target") : null;
+  return html`
+    <div className="app screen">
+      <${Topbar}/>
+      <div className="eyebrow fb-head">Your speech</div>
+      <p className="fb-topic">${session.topic}</p>
+      <div className="metrics">
+        <div className="metric"><div className="k">Fillers</div><div className="v">${m.fillerCount}</div>
+          ${m.topFillers.length>0 ? html`<div className="fillerlist">${m.topFillers.map(([w,c])=>`${w}·${c}`).join("   ")}${m.repetitions?`   repeats·${m.repetitions}`:""}</div>` : null}</div>
+        <div className="metric"><div className="k">Pace</div>
+          <div className="v">${m.wpm!=null?m.wpm:"—"} <small>wpm</small></div>
+          <div className="sub">${Metrics.mmss(m.timeSec)}${m.targetSec?` / ${Metrics.mmss(m.targetSec)}`:""}${overNote?` · ${overNote}`:""}</div></div>
+        <div className="metric"><div className="k">Structure</div><div className="sub" style=${{marginTop:0}}>${fb.structure}</div></div>
+        <div className="metric"><div className="k">Clarity</div><${ClarityLabel} label=${fb.clarityLabel}/><div className="sub">${fb.clarity}</div></div>
+      </div>
+      ${Array.isArray(fb.whatWorked) && fb.whatWorked.length>0 ? html`<div className="block">
+        <div className="eyebrow">What worked</div>
+        <ul className="worked">${fb.whatWorked.slice(0,2).map((w,i)=>html`<li key=${i}><${IcCheck}/>${w}</li>`)}</ul>
+      </div>` : null}
+      <div className="block"><div className="eyebrow">One pattern to notice</div>
+        <p className="pattern">${fb.onePattern}</p>
+        ${fb.whyItMatters ? html`<p className="why">${fb.whyItMatters}</p>` : null}</div>
+      <div className="block">
+        <div className="focuscard"><div className="eyebrow">Your focus</div><p>${fb.yourFocus}</p></div>
+        ${fb.tryAgain ? html`<div className="tryagain"><div className="eyebrow">Try again</div><p>${fb.tryAgain}</p></div>` : null}
+      </div>
+      ${fb.coachNote && String(fb.coachNote).trim() ? html`<div className="coachnote"><${IcInfo}/><span>${fb.coachNote}</span></div>` : null}
+      ${err ? html`<div className="errbox">${err}</div>` : null}
+      <div className="btnrow">
+        <button className="btn sec" onClick=${onSave}>Save & finish</button>
+        <button className="btn" onClick=${onRetry}>Try again</button>
+      </div>
+    </div>`;
+}
+
+/* ---- RETRY RESULT ---- */
+function RetryScreen({session,onSave}){
+  const a=session.a1.metrics, b=session.a2.metrics, c=session.compare;
+  const rows=[
+    { k:"Fillers", from:a.fillerCount, to:b.fillerCount, better:b.fillerCount<a.fillerCount, eq:b.fillerCount===a.fillerCount, kind:"Fillers" },
+    { k:"Pace", from:a.wpm??"—", to:(b.wpm??"—"), suffix:b.wpm!=null?" wpm":"", kind:"other" },
+    { k:"Time", from:Metrics.mmss(a.timeSec), to:Metrics.mmss(b.timeSec), kind:"other" },
+  ];
+  const verdict=(c.verdict||"").split(/(\*[^*]+\*)/).map((p,i)=>
+    p.startsWith("*")&&p.endsWith("*") ? html`<em key=${i}>${p.slice(1,-1)}</em>` : html`<span key=${i}>${p}</span>`);
+  return html`
+    <div className="app screen">
+      <${Topbar}/>
+      <div className="eyebrow fb-head">Your progress</div>
+      <p className="verdict">${verdict}</p>
+      <div className="prog">
+        ${rows.map((r,i)=>html`<div className="progrow" key=${i}>
+          <span className="pk">${r.k}</span>
+          <span className="pv"><span className="from">${r.from}</span><span className="arr">→</span><span className="to">${r.to}${r.suffix||""}</span></span>
+          <span className=${"tag "+(r.kind==="Fillers"&&r.better?"tag-up":"tag-flat")}>${r.kind==="Fillers"?(r.better?"improved":r.eq?"held":"—"):"—"}</span>
+        </div>`)}
+        <div className="qualrow"><div className="pk">Structure</div><p>${c.structure}</p></div>
+        <div className="qualrow"><div className="pk">Clarity</div><p style=${{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>${c.clarity} <${ClarityLabel} label=${c.clarityLabel}/></p></div>
+      </div>
+      <button className="btn" style=${{marginTop:22}} onClick=${onSave}>Save & finish</button>
+      <div className="footnote">The retry only tests the one focus — no new corrections piled on.</div>
+    </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+</script>
+</body>
+</html>
